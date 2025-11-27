@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework import viewsets, filters
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Job
 from .serializers import JobSerializer
 from common.permissions import IsRecruiter, IsOwnerOrReadOnly
