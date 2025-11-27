@@ -9,4 +9,12 @@ class ApplicationViewSet(viewsets.ModelViewSet):
     serializer_class = ApplicationSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
-    def get_quer
+    def get_queryset(self):
+        user = self.request.user
+        # job seekers see their application; recruiters see application for their jobs
+        if user.role == 'recruiter':
+            return Application.objects.filter(job__company__created_by=user)
+        return Application.objects.filter(applicant=user)
+
+    def perform_create(self, serializer):
+        serializer.save(applicant=self.request.user)
