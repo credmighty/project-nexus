@@ -12,11 +12,14 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from pathlib import Path
+import environ
 from datetime import timedelta
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env()
 load_dotenv(BASE_DIR / '.env')
 
 AUTH_USER_MODEL = 'users.User'
@@ -49,10 +52,18 @@ INSTALLED_APPS = [
     'apps.applications'
     'apps.jobs',
     'apps.saved',
+
+    'rest_framework',
+    'drf_yasg',
+    'rest_framework_simplejwt',
+    'django_filters',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
+    #"whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -87,7 +98,11 @@ WSGI_APPLICATION = 'job_board.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': env("DB_NAME"),
+        'USER': env("DB_USER"),
+        'PASSWORD': env("DB_PASSWORD"),
+        'HOST': env("DB_HOST"),
+        'PORT': env("DB_PORT"),
     }
 }
 
@@ -108,6 +123,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+    {
+        "NAME": "users.validators.StrongPasswordValidator"
+    },
 ]
 
 
@@ -127,6 +145,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -140,7 +161,18 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permission.IsAuthenticatedOrReadOnly',
     ),
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend"
+    ],
 }
+
+# Cookie settings (for cookies created by our login/refresh endpoints)
+JWT_COOKIE_NAME = "refresh_token"        # refresh stored HttpOnly cookie
+JWT_ACCESS_COOKIE_NAME = "access_token"  # access cookie
+# set to True in production (HTTPS)
+JWT_COOKIE_SECURE = env("JWT_COOKIE_SECURE")
+JWT_COOKIE_SAMESITE = "Lax"  # or "Strict"
+JWT_COOKIE_HTTPONLY = True
 
 
 #simpleJWT settings

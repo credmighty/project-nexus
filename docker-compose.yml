@@ -23,7 +23,7 @@ services:
     command: >
       sh -c "python manage.py migrate &&
              python manage.py collectstatic --noinput &&
-             gunicorn jobboard.wsgi:application --bind 0.0.0.0:8000 --workers 3"
+             gunicorn job_board.wsgi:application --bind 0.0.0.0:8000 --workers 3"
     volumes:
       - .:/app
     env_file:
@@ -38,7 +38,7 @@ services:
 
   worker:
     build: .
-    command: celery -A jobboard worker --loglevel=info
+    command: celery -A job_board worker --loglevel=info
     volumes:
       - .:/app
     env_file:
@@ -51,7 +51,7 @@ services:
 
   beat:
     build: .
-    command: celery -A jobboard beat --loglevel=info
+    command: celery -A job_board beat --loglevel=info
     volumes:
       - .:/app
     env_file:

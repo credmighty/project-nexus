@@ -1,5 +1,5 @@
 # Use official Python slim image
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 # Set env
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -19,4 +19,4 @@ RUN pip install -r requirements.txt
 COPY . /app/
 
 # collect static (optional) - will run at container start
-CMD ["gunicorn", "jobboard.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+CMD ["gunicorn", "job_board.wsgi.application", "--bind", "0.0.0.0:8000", "--workers", "3"]
